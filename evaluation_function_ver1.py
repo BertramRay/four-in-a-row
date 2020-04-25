@@ -18,7 +18,7 @@ def evaluationFunction(board):
     #计算cal_top
     for j in range(COLUMN):
         for i in range(ROW):
-            if cal_board[j][i] != -1:
+            if cal_board[i][j] != -1:
                 cal_top.append(i)
                 break
             if i == ROW-1:
