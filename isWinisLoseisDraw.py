@@ -1,205 +1,83 @@
-def isWin( gameState ):
+def isWin( gameStateBoard, x , y , color):
     # 参数当前状态gameState
-    # 返回bool类型，是否我们胜利（我们为在棋盘上为0）
+    # 参数当前状态x , y为新棋子的位置，color为新棋子颜色
+    # 返回bool类型，是否当前颜色胜利
     # 还可以改进比如剩余距离和当前连在一起数量小于4，可不查！
-    column = False #代表竖着的是否有四个连着的0
-    for i in range(7) :#i代表列
-        j = 5 
-        number_continuuum = 0 #连着0的数量
-        while j >= 0 and number_continuuum < 4 : 
-            if gameState["Board"][j][i]== 0 :
-                number_continuuum += 1
-                j -= 1 
-            else : 
-                number_continuuum = 0
-                j -= 1 
-        if number_continuuum == 4 : #只检查4个
-            column = True
+    # 检查竖着的是否有四个以上连着
+    number_continuuum = 1 #已经计入新的棋子
+    t = 0
+    for i in range( y + 1, 5, 1) :#i代表列
+        if gameStateBoard[i][y] != color:
+            t = i 
             break
+    number_continuuum += ( t - x ) 
+    if number_continuuum >= 4 :
+        return True
 
-    row = False #代表横着的是否有四个连着的0
-    for j in range(5, 0, -1) :#j代表行
-        i = 0
-        number_continuuum = 0 #连着0的数量
-        while i < 7 and number_continuuum < 4 : 
-            if gameState["Board"][j][i] == 0 :
-                number_continuuum += 1
-                i += 1 
-            else : 
-                number_continuuum = 0
-                i += 1 
-        if number_continuuum == 4 : #只检查4个
-            row = True
+    #检查横着的是否有四个以上连着
+    number_continuuum = 1 #已经计入新的棋子
+    for j in range( y + 1, 6, 1) :#j代表行
+        if gameStateBoard[x][j] != color:
+            t = j 
             break
+    number_continuuum += ( t - y )
+    for j in range( y - 1, 0, -1) :#j代表行
+        if gameStateBoard[x][j] != color:
+            t = j 
+            break
+    number_continuuum += ( y - 1 - t )        
+    if number_continuuum >= 4 :
+        return True
 
-    biasl = False #代表携着的是否有四个连着的0,端点在0列的
-    for k in range(6) :#k代表可行的斜线
-        l = 6 - min( 5 - k , k - 0 ) #代表第k个斜线的长度
-        m = 0 
-        number_continuuum = 0 #连着0的数量
-        if  k < 3 :
-            while m < l and number_continuuum < 4 : 
-                if gameState["Board"][k+m][m] == 0 :
-                    number_continuuum += 1
-                    m += 1 
-                else : 
-                    number_continuuum = 0
-                    m += 1 
-            if number_continuuum == 4 : #只检查4个
-                biasl = True
-                break
-        else :
-            while m < l and number_continuuum < 4 : 
-                if gameState["Board"][k-m][m] == 0 :
-                    number_continuuum += 1
-                    m += 1 
-                else : 
-                    number_continuuum = 0
-                    m += 1 
-            if number_continuuum == 4 : #只检查4个
-                biasl = True
-                break
+    #左上-右下
+    number_continuuum = 1#已经计入新的棋子
+    k = 1 
+    while ( x - k ) >= 0 and ( y - k ) >= 0:
+        if gameStateBoard[x - k][y - k] != color:
+            break
+        k += 1
+    number_continuuum += k - 1 
+    k = 1
+    while ( x + k ) <= 5 and ( y + k ) <= 6:
+        if gameStateBoard[x + k][y + k] != color:
+            break
+        k += 1
+    number_continuuum += k - 1 
+    if number_continuuum >= 4 :
+        return  True
+
+    #左下-右上
+    number_continuuum = 1#已经计入新的棋子
+    k = 1 
+    while ( x - k ) >= 0 and ( y + k ) <= 6:
+        if gameStateBoard[x - k][y + k] != color:
+            break
+        k += 1
+    number_continuuum += k - 1 
+    k = 1
+    while ( x + k ) <= 5 and ( y - k ) >= 0:
+        if gameStateBoard[x + k][y - k] != color:
+            break
+        k += 1
+    number_continuuum += k - 1 
+    if number_continuuum >= 4 :
+        return True
     
-    biasr = False #代表携着的是否有四个连着的0,端点在6列的
-    for k in range(6) :#k代表可行的斜线
-        l = 6 - min( 5 - k , k - 0 ) #代表第k个斜线的长度
-        m = 0 
-        number_continuuum = 0 #连着0的数量
-        if  k < 3 :
-            while m < l and number_continuuum < 4 : 
-                if gameState["Board"][k+m][6-m] == 0 :
-                    number_continuuum += 1
-                    m += 1 
-                else : 
-                    number_continuuum = 0
-                    m += 1 
-            if number_continuuum == 4 : #只检查4个
-                biasr = True
-                break
-        else :
-            while m < l and number_continuuum < 4 : 
-                if gameState["Board"][k-m][6-m] == 0 :
-                    number_continuuum += 1
-                    m += 1 
-                else : 
-                    number_continuuum = 0
-                    m += 1 
-            if number_continuuum == 4 : #只检查4个
-                biasr = True
-                break
-    
-    win = column or row or biasl or biasr 
-    return win
+    #不属于上述任何获胜的可能情况
+    return False
 
 
-def isLose( gameState ):
+def isDraw( gameStateBoard , x , y , color ):
     # 参数当前状态gameState
-    # 返回bool类型，是否对方赢（对方在棋盘上为1）
-    # 还可以改进比如剩余距离和当前连在一起数量小于4，可不查！
-    column = False #代表竖着的是否有四个连着的1
-    for i in range(7) :#i代表列
-        j = 5 
-        number_continuuum = 0 #连着0的数量
-        while j >= 0 and number_continuuum < 4 : 
-            if gameState["Board"][j][i] == 1 :
-                number_continuuum += 1
-                j -= 1 
-            else : 
-                number_continuuum = 0
-                j -= 1 
-        if number_continuuum == 4 : #只检查4个
-            column = True
-            break
-
-    row = False #代表横着的是否有四个连着的0
-    for j in range(5, 0, -1) :#j代表行
-        i = 0
-        number_continuuum = 0 #连着0的数量
-        while i < 7 and number_continuuum < 4 : 
-            if gameState["Board"][j][i] == 1 :
-                number_continuuum += 1
-                i += 1 
-            else : 
-                number_continuuum = 0
-                i += 1 
-        if number_continuuum == 4 : #只检查4个
-            row = True
-            break
-
-    biasl = False #代表携着的是否有四个连着的1,端点在0列的
-    for k in range(6) :#k代表可行的斜线
-        l = 6 - min( 5 - k , k - 0 ) #代表第k个斜线的长度
-        m = 0 
-        number_continuuum = 0 #连着0的数量
-        if  k < 3 :
-            while m < l and number_continuuum < 4 : 
-                if gameState["Board"][k+m][m] == 1 :
-                    number_continuuum += 1
-                    m += 1 
-                else : 
-                    number_continuuum = 0
-                    m += 1 
-            if number_continuuum == 4 : #只检查4个
-                biasl = True
-                break
-        else :
-            while m < l and number_continuuum < 4 : 
-                if gameState["Board"][k-m][m] == 1:
-                    number_continuuum += 1
-                    m += 1 
-                else : 
-                    number_continuuum = 0
-                    m += 1 
-            if number_continuuum == 4 : #只检查4个
-                biasl = True
-                break
-    
-    biasr = False #代表携着的是否有四个连着的0,端点在6列的
-    for k in range(6) :#k代表可行的斜线
-        l = 6 - min( 5 - k , k - 0 ) #代表第k个斜线的长度
-        m = 0 
-        number_continuuum = 0 #连着0的数量
-        if  k < 3 :
-            while m < l and number_continuuum < 4 : 
-                if gameState["Board"][k+m][6-m] == 1 :
-                    number_continuuum += 1
-                    m += 1 
-                else : 
-                    number_continuuum = 0
-                    m += 1 
-            if number_continuuum == 4 : #只检查4个
-                biasr = True
-                break
-        else :
-            while m < l and number_continuuum < 4 : 
-                if gameState["Board"][k-m][6-m] == 1:
-                    number_continuuum += 1
-                    m += 1 
-                else : 
-                    number_continuuum = 0
-                    m += 1 
-            if number_continuuum == 4 : #只检查4个
-                biasr = True
-                break
-    
-    lose = column or row or biasl or biasr 
-    return lose
-
-
-def isDraw( gameState ):
-    # 参数当前状态gameState
+    # 参数当前状态x , y为新棋子的位置，color为新棋子颜色
     # 返回bool类型，是否平局
-    draw = True 
     # 检查是否有棋子未下
-    for j in range(5, 0, -1) :
-          for i in range(7) :
-              if gameState["Board"][j][i]== -1:
-                  draw = False
-                  return draw
+    for j in range(7) :
+        if gameStateBoard[0][j]== -1:
+            return False
     
-    win = isWin(gameState )
-    lose = isLose(gameState )
-    if ( win == True ) or ( lose == True ):
-        draw = False
-    
-    return draw
+    if isWin(gameStateBoard, x , y , color) == True  :
+        return False
+
+    #棋子已经下完，且无人胜利
+    return True
