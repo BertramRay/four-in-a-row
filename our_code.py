@@ -224,7 +224,6 @@ def evaluationFunction1(board):
                 break
             if i == ROW-1:
                 cal_top.append(ROW)
-    print(cal_top)
 
     #第一维：棋形。第二维：玩家和机器人
     d = [[0]*2 for i in range(5)]#d[5][2]
