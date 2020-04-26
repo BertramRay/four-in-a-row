@@ -12,19 +12,11 @@ from random import randint
 #
 #import numpy    # Base N-dimensional array package
 #import pandas   # Data structures & analysis
-def isColumnFullX(dropColumn,board):
-    #Check the top row has an empty space
-    if len([x[dropColumn] for x in board if x[dropColumn] == -1]) > 0:
-        return False
 
-    return True
-
-
-#def iswin(gameState):
 
 def isWin( gameStateBoard, x , y , color):
     # 参数当前状态gameState
-    # 参数当前状态x , y为新棋子的位置，color为新棋子颜色
+    # 参数当前状态x , y是action为新棋子的位置，color为新棋子颜色
     # 返回bool类型，是否当前颜色胜利
     # 还可以改进比如剩余距离和当前连在一起数量小于4，可不查！
     # 检查竖着的是否有四个以上连着
@@ -105,8 +97,6 @@ def isDraw( gameStateBoard , x , y , color ):
 
     #棋子已经下完，且无人胜利
     return True
-#def islose(gameState):
-    
     
 def test(gameState):
     dropColumn=randint(0, len(gameState["Board"][0])-1)
@@ -128,7 +118,7 @@ import copy
 def getSuccessor(gameStateBoard, action , color):
     # 参数action 代表新的棋子所在列的编号（注意从0开始！）
     # 参数color 代表新的棋子的颜色
-    # 返回一个tuple (gameState,x ) 表示操作后的状态x , y为新棋子的位置，color为新棋子颜色
+    # 返回一个tuple (gameStateBoard,x ) 表示操作后的状态x , x为新棋子的x坐标位置（不是action对应的维度），color为新棋子颜色
     # 注意缺少保护！针对特殊情况
     # 检查是否非法
     if  gameStateBoard[0][action] != -1  :
@@ -166,7 +156,7 @@ def getMax(gameStateBoard, x, y, limitDepth , depth = 0):
     legalActions = getLegalAction(gameStateBoard)
     # 如果游戏停止，返回当前状态评估值
     if isWin(gameStateBoard, x, y, 1) or  isDraw(gameStateBoard, x, y, 1) or depth == limitDepth :
-        return evaluationFunction(gameStateBoard, x, y, 1)
+        return evaluationFunction(gameStateBoard)
 
     maxValue = -float('inf')
     for action in legalActions:
@@ -184,7 +174,7 @@ def getExpect(gameStateBoard, x, y, limitDepth , depth = 0):
 
     # 如果游戏停止，返回当前状态评估值
     if isWin(gameStateBoard, x, y, 0) or isDraw(gameStateBoard, x, y, 0) or depth == limitDepth :
-        return evaluationFunction(gameStateBoard, x, y, 0)
+        return evaluationFunction(gameStateBoard)
 
     n = len(legalActions)
     sumValue = 0
@@ -197,10 +187,7 @@ def getExpect(gameStateBoard, x, y, limitDepth , depth = 0):
     
     return expectValue
     
-def evaluationFunction(gameStateBoard, x , y , color ):
-    return evaluationFunction1(gameStateBoard)
-    
-def evaluationFunction1(board):
+def evaluationFunction(board):
     #constant
     COLUMN = 7
     ROW = 6
@@ -224,7 +211,7 @@ def evaluationFunction1(board):
                 break
             if i == ROW-1:
                 cal_top.append(ROW)
-    print(cal_top)
+    #print(cal_top)
 
     #第一维：棋形。第二维：玩家和机器人
     d = [[0]*2 for i in range(5)]#d[5][2]
@@ -360,40 +347,42 @@ def evaluationFunction1(board):
     # print(i)
 
 #minimaxAgent
-def minimaxAgent(gameState,limitDepth):
-    def max_value(c_state,c_depth,alpha,beta):
+def minimaxAgent(gameStateBoard,limitDepth):
+    #c_state is a tuple: (currentBoard, height), height means the height of the most recent chess(also means x), currentBoard means the current state's board information.
+    #horizon also means y, the horizontal coordinate of the most recent chess.
+    def max_value(c_state,c_depth,alpha,beta,horizon):
         v=-float('inf')
         if c_depth>limitDepth:
-            return evaluationFunction(c_state)
-        actions=getLegalActions(c_state)
-        if isWin(c_state) or  isLose(c_state) or isDraw(c_state):
-            return evaluationFunction(c_state)
+            return evaluationFunction(c_state[0])
+        actions=getLegalAction(c_state[0])
+        if isWin(c_state[0],c_state[1],horizon,1) or isDraw(c_state[0],c_state[1],horizon,1):
+            return evaluationFunction(c_state[0])
         for action in actions:
-            v=max(min_value(getSuccessor(c_state,action,0),c_depth,alpha,beta),v)
+            v=max(min_value(getSuccessor(c_state[0],action,0),c_depth,alpha,beta,action),v)
             if v>beta:
                 return v
             alpha=max(alpha,v)
         return v
 
-    def min_value(c_state,c_depth,alpha,beta):
+    def min_value(c_state,c_depth,alpha,beta,horizon):
         v=float('inf')
-        actions=getLegalActions(c_state)
-        if isWin(c_state) or  isLose(c_state) or isDraw(c_state):
-            return evaluationFunction(c_state)
+        actions=getLegalAction(c_state[0])
+        if isWin(c_state[0],c_state[1],horizon,0) or isDraw(c_state[0],c_state[1],horizon,0):
+            return evaluationFunction(c_state[0])
         for action in actions:
-            v=min(max_value(getSuccessor(c_state,action,1),c_depth+1,alpha,beta),v)
+            v=min(max_value(getSuccessor(c_state[0],action,1),c_depth+1,alpha,beta,action),v)
             if v<alpha:
                 return v
             beta=min(beta,v)
         return v
 
-    actions=getLegalActions(gameState)
+    actions=getLegalAction(gameStateBoard)
     va=-float('inf')
     alpha=-float('inf')
     beta=float('inf')
     exp=[]
     for action in actions:
-        li=min_value(getSuccessor(gameState,action,0),1,alpha,beta)
+        li=min_value(getSuccessor(gameStateBoard,action,0),1,alpha,beta,action)
         exp.append(li)
         va=max(li,va)
         alpha=max(alpha,va)
@@ -440,7 +429,7 @@ def calculateMove(gameState):
     while isColumnFullX(dropColumn,gameState["Board"]):
         dropColumn=randint(0, len(gameState["Board"][0])-1)
     '''
-    return {"Column":ExpectimaxAgent(gameState["Board"],2)}
+    return {"Column":minimaxAgent(gameState["Board"],2)}
 
 def isColumnFullX(dropColumn,board):
     #Check the top row has an empty space

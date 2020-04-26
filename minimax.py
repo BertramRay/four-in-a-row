@@ -1,95 +1,58 @@
-#getLegalActions(gameState) return all the possible actions in a list
+#getLegalAction(gameState) return all the possible actions in a list
 #evaluationFunction(gameState) return eva func
-#getSuccessor(gameState , action , color) return nextgameState
+#getSuccessor(gameStateBoard, action , color):
+    # 参数action 代表新的棋子所在列的编号（注意从0开始！）
+    # 参数color 代表新的棋子的颜色
+    # 返回一个tuple (gameState,x ) 表示操作后的状态x , y为新棋子的位置，color为新棋子颜色
+    # 注意缺少保护！针对特殊情况
+    # 检查是否非法
 #color=0 means our turn, color=1 means opponent's turn
+#isWin( gameStateBoard, x , y , color):
+    # 参数当前状态gameState
+    # 参数当前状态x , y是action为新棋子的位置，color为新棋子颜色
+    # 返回bool类型，是否当前颜色胜利
+#isDraw( gameStateBoard , x , y , color ):
+    # 参数当前状态gameState
+    # 参数当前状态x , y为新棋子的位置，color为新棋子颜色
+    # 返回bool类型，是否平局
 
-def minimaxAgent(gameState,limitDepth):
-    def max_value(c_state,c_depth,alpha,beta):
+def minimaxAgent(gameStateBoard,limitDepth):
+    #c_state is a tuple: (currentBoard, height), height means the height of the most recent chess(also means x), currentBoard means the current state's board information.
+    #horizon also means y, the horizontal coordinate of the most recent chess.
+    def max_value(c_state,c_depth,alpha,beta,horizon):
         v=-float('inf')
         if c_depth>limitDepth:
-            return evaluationFunction(c_state)
-        actions=getLegalActions(c_state)
-        if isWin(c_state) or  isLose(c_state) or isDraw(c_state):
-            return evaluationFunction(c_state)
+            return evaluationFunction(c_state[0])
+        actions=getLegalAction(c_state[0])
+        if isWin(c_state[0],c_state[1],horizon,1) or isDraw(c_state[0],c_state[1],horizon,1):
+            return evaluationFunction(c_state[0])
         for action in actions:
-            v=max(min_value(getSuccessor(c_state,action,0),c_depth,alpha,beta),v)
+            v=max(min_value(getSuccessor(c_state[0],action,0),c_depth,alpha,beta,action),v)
             if v>beta:
                 return v
             alpha=max(alpha,v)
         return v
 
-    def min_value(c_state,c_depth,alpha,beta):
+    def min_value(c_state,c_depth,alpha,beta,horizon):
         v=float('inf')
-        actions=getLegalActions(c_state)
-        if isWin(c_state) or  isLose(c_state) or isDraw(c_state):
-            return evaluationFunction(c_state)
+        actions=getLegalAction(c_state[0])
+        if isWin(c_state[0],c_state[1],horizon,0) or isDraw(c_state[0],c_state[1],horizon,0):
+            return evaluationFunction(c_state[0])
         for action in actions:
-            v=min(max_value(getSuccessor(c_state,action,1),c_depth+1,alpha,beta),v)
+            v=min(max_value(getSuccessor(c_state[0],action,1),c_depth+1,alpha,beta,action),v)
             if v<alpha:
                 return v
             beta=min(beta,v)
         return v
 
-    actions=getLegalActions(gameState)
+    actions=getLegalAction(gameStateBoard)
     va=-float('inf')
     alpha=-float('inf')
     beta=float('inf')
     exp=[]
     for action in actions:
-        li=min_value(getSuccessor(gameState,action,0),1,alpha,beta)
+        li=min_value(getSuccessor(gameStateBoard,action,0),1,alpha,beta,action)
         exp.append(li)
         va=max(li,va)
         alpha=max(alpha,va)
     return actions[exp.index(max(exp))]
-
-'''
-def getAction(self, gameState):
-        """
-        Returns the minimax action using self.depth and self.evaluationFunction
-        """
-        "*** YOUR CODE HERE ***"
-        #This time we use another way to implement the algorithm
-        def max_value(c_state,c_depth,alpha,beta):
-            v=-999999
-            if c_depth>self.depth:
-                return self.evaluationFunction(c_state)
-            actions=c_state.getLegalActions(0)
-            if not actions:
-                return self.evaluationFunction(c_state)
-            for action in actions:
-                li=min_value(c_state.generateSuccessor(0,action),1,c_depth,alpha,beta)
-                v=max(li,v)
-                if v>beta:
-                    return v
-                alpha=max(alpha,v)
-            return v
-
-        def min_value(c_state,c_agent_index,c_depth,alpha,beta):
-            v=999999
-            actions=c_state.getLegalActions(c_agent_index)
-            if not actions:
-                return self.evaluationFunction(c_state)
-            for action in actions:
-                if c_agent_index==gameState.getNumAgents()-1:
-                    li=max_value(c_state.generateSuccessor(c_agent_index,action),c_depth+1,alpha,beta)
-                else:
-                    li=min_value(c_state.generateSuccessor(c_agent_index,action),c_agent_index+1,c_depth,alpha,beta)
-                v=min(li,v)
-                if v<alpha:
-                    return v
-                beta=min(beta,v)
-            return v
-        
-        actions=gameState.getLegalActions(0)
-        
-        va=-999999
-        alpha=-999999
-        beta=999999
-        exp=[]
-        for action in actions:
-            li=min_value(gameState.generateSuccessor(0,action),1,1,alpha,beta)
-            exp.append(li)
-            va=max(li,va)
-            alpha=max(alpha,va)
-        return actions[exp.index(max(exp))]
-'''
