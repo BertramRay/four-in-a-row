@@ -156,7 +156,7 @@ def getMax(gameStateBoard, x, y, limitDepth , depth = 0):
     legalActions = getLegalAction(gameStateBoard)
     # 如果游戏停止，返回当前状态评估值
     if isWin(gameStateBoard, x, y, 1) or  isDraw(gameStateBoard, x, y, 1) or depth == limitDepth :
-        return evaluationFunction(gameStateBoard,depth+1)
+        return evaluationFunction(gameStateBoard,1)
 
     maxValue = -float('inf')
     for action in legalActions:
@@ -174,7 +174,7 @@ def getExpect(gameStateBoard, x, y, limitDepth , depth = 0):
 
     # 如果游戏停止，返回当前状态评估值
     if isWin(gameStateBoard, x, y, 0) or isDraw(gameStateBoard, x, y, 0) or depth == limitDepth :
-        return evaluationFunction(gameStateBoard,depth+1)
+        return evaluationFunction(gameStateBoard,0)
 
     n = len(legalActions)
     sumValue = 0
@@ -332,9 +332,9 @@ def evaluationFunction(board,depth):
     
     #main
     cal(0)
-    value+=0.5**(depth-1)*(d[4][0]*FOUR+d[3][0]*DEAD_3+d[2][0]*DEAD_2+d[1][0]*DEAD_1+a[3][0]*ALIVE_3+a[2][0]*ALIVE_2+a[1][0]*ALIVE_1)
+    value+=0.1**(depth-1)*d[4][0]*FOUR+d[3][0]*DEAD_3+d[2][0]*DEAD_2+d[1][0]*DEAD_1+a[3][0]*ALIVE_3+a[2][0]*ALIVE_2+a[1][0]*ALIVE_1
     cal(1)
-    value-=d[4][1]*FOUR+d[3][1]*DEAD_3+d[2][1]*DEAD_2+d[1][1]*DEAD_1+a[3][1]*ALIVE_3+a[2][1]*ALIVE_2+a[1][1]*ALIVE_1
+    value-=(d[4][1]*FOUR+d[3][1]*DEAD_3+d[2][1]*DEAD_2+d[1][1]*DEAD_1+a[3][1]*ALIVE_3+a[2][1]*ALIVE_2+a[1][1]*ALIVE_1)
     return value
     
     # board = [[-1, 0, 1, 1, -1, -1, -1], 
