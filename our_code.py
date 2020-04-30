@@ -21,23 +21,21 @@ def isWin( gameStateBoard, x , y , color):
     # 还可以改进比如剩余距离和当前连在一起数量小于4，可不查！
     # 检查竖着的是否有四个以上连着
     number_continuuum = 1 #已经计入新的棋子
-    t = 0
-    for i in range( y + 1, 5, 1) :#i代表列
-        if gameStateBoard[i][y] != color:
-            t = i 
-            break
-    number_continuuum += ( t - x ) 
+    t=x+1
+    while t<=5 and gameStateBoard[t][y] != color:#t代表行
+        t+=1
+    number_continuuum += ( t-x-1 ) 
     if number_continuuum >= 4 :
         return True
 
     #检查横着的是否有四个以上连着
     number_continuuum = 1 #已经计入新的棋子
-    for j in range( y + 1, 6, 1) :#j代表行
+    for j in range( y + 1, 7, 1) :#j代表行
         if gameStateBoard[x][j] != color:
             t = j 
             break
-    number_continuuum += ( t - y )
-    for j in range( y - 1, 0, -1) :#j代表行
+    number_continuuum += ( t - y-1 )
+    for j in range( y - 1, -1, -1) :#j代表行
         if gameStateBoard[x][j] != color:
             t = j 
             break
@@ -47,7 +45,7 @@ def isWin( gameStateBoard, x , y , color):
 
     #左上-右下
     number_continuuum = 1#已经计入新的棋子
-    k = 1 
+    k = 1
     while ( x - k ) >= 0 and ( y - k ) >= 0:
         if gameStateBoard[x - k][y - k] != color:
             break
@@ -64,7 +62,7 @@ def isWin( gameStateBoard, x , y , color):
 
     #左下-右上
     number_continuuum = 1#已经计入新的棋子
-    k = 1 
+    k = 1    
     while ( x - k ) >= 0 and ( y + k ) <= 6:
         if gameStateBoard[x - k][y + k] != color:
             break
@@ -187,7 +185,7 @@ def getExpect(gameStateBoard, x, y, limitDepth , depth = 0):
     
     return expectValue
     
-def evaluationFunction(board,depth):
+def evaluationFunction(board,depth,color):
     #constant
     COLUMN = 7
     ROW = 6
@@ -332,10 +330,13 @@ def evaluationFunction(board,depth):
     
     #main
     cal(0)
-    value+=0.1**(depth-1)*d[4][0]*FOUR+d[3][0]*DEAD_3+d[2][0]*DEAD_2+d[1][0]*DEAD_1+a[3][0]*ALIVE_3+a[2][0]*ALIVE_2+a[1][0]*ALIVE_1
+    value+=d[4][0]*FOUR+d[3][0]*DEAD_3+d[2][0]*DEAD_2+d[1][0]*DEAD_1+a[3][0]*ALIVE_3+a[2][0]*ALIVE_2+a[1][0]*ALIVE_1
+    if color==0:
+        value=value*0.1**(depth-1)
     cal(1)
-    value-=(d[4][1]*FOUR+d[3][1]*DEAD_3+d[2][1]*DEAD_2+d[1][1]*DEAD_1+a[3][1]*ALIVE_3+a[2][1]*ALIVE_2+a[1][1]*ALIVE_1)
+    value-=d[4][1]*FOUR+d[3][1]*DEAD_3+d[2][1]*DEAD_2+d[1][1]*DEAD_1+a[3][1]*ALIVE_3+a[2][1]*ALIVE_2+a[1][1]*ALIVE_1
     return value
+
     
     # board = [[-1, 0, 1, 1, -1, -1, -1], 
     #          [-1, 0, 0, 1, -1, -1, -1], 
@@ -352,11 +353,11 @@ def minimaxAgent(gameStateBoard,limitDepth):
     #horizon also means y, the horizontal coordinate of the most recent chess.
     def max_value(c_state,c_depth,alpha,beta,horizon):
         v=-float('inf')
-        if c_depth>limitDepth:
-            return evaluationFunction(c_state[0],c_depth)
+        if isWin(c_state[0],c_state[1],horizon,1) :
+            return evaluationFunction(c_state[0],c_depth,1)
+        if c_depth>limitDepth or isDraw(c_state[0],c_state[1],horizon,1):
+            return evaluationFunction(c_state[0],c_depth,2)
         actions=getLegalAction(c_state[0])
-        if isWin(c_state[0],c_state[1],horizon,1) or isDraw(c_state[0],c_state[1],horizon,1):
-            return evaluationFunction(c_state[0],c_depth)
         for action in actions:
             v=max(min_value(getSuccessor(c_state[0],action,0),c_depth,alpha,beta,action),v)
             if v>beta:
@@ -367,8 +368,10 @@ def minimaxAgent(gameStateBoard,limitDepth):
     def min_value(c_state,c_depth,alpha,beta,horizon):
         v=float('inf')
         actions=getLegalAction(c_state[0])
-        if isWin(c_state[0],c_state[1],horizon,0) or isDraw(c_state[0],c_state[1],horizon,0):
-            return evaluationFunction(c_state[0],c_depth)
+        if isDraw(c_state[0],c_state[1],horizon,0):
+            return evaluationFunction(c_state[0],c_depth,2)
+        if isWin(c_state[0],c_state[1],horizon,0):
+            return evaluationFunction(c_state[0],c_depth,0)
         for action in actions:
             v=min(max_value(getSuccessor(c_state[0],action,1),c_depth+1,alpha,beta,action),v)
             if v<alpha:
