@@ -134,7 +134,7 @@ def getSuccessor(gameStateBoard, action , color):
     return  (stateBoard , i   )   
     
     
-def ExpectimaxAgent( gameStateBoard , limitDepth ):
+def ExpectimaxAgent( gameStateBoard , limitDepth ):#注意如果要调用此函数需要改里面的evaluation的参数
     # 参数当前状态gameState
     # 返回期望最大的动作
     maxValue = -float('inf')
