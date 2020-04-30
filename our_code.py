@@ -245,6 +245,13 @@ def evaluationFunction(board,depth,color):
         #纵向
         for i in range(COLUMN):
             j = cal_top[i]
+            if (j == 0):
+                x = j
+                while ((j < ROW) and (cal_board[j][i] == player)):
+                    j += 1
+                if ((j - x) >= 4):
+                    d[4][player] += 1             
+                continue
             if ((j != ROW) and (cal_board[j][i] == player)):
                 x = j
                 while ((j < ROW) and (cal_board[j][i] == player)):
