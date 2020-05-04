@@ -413,11 +413,12 @@ def monte_carlo_tree_search(board):
         backup(expand_node, reward)
         #print("OK")
         
-    for childs in existed_childs:
-        print(childs.visit_times)
-        print(childs.reward_value)
-        print(childs.reward_value/childs.visit_times)
-        print(childs.choice)
+#     for childs in existed_childs:
+#         print(childs.visit_times)
+#         print(childs.reward_value)
+#         print(childs.reward_value/childs.visit_times)
+#         print(childs.choice)
+
     # print(existed_childs[0].visit_times)
     # print(existed_childs[1].visit_times)
     # print(existed_childs[2].visit_times)
