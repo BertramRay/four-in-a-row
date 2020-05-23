@@ -336,7 +336,7 @@ def default_policy( board, node):
             length-=1
         color=1-color #换对手
         move+=1
-    award*=0.5**move#我方赢步数越多得分越低，对方赢步数越多得分越高
+    award*=0.1**move#我方赢步数越多得分越低，对方赢步数越多得分越高
     del stateboard
     del cur_action
     del successor
