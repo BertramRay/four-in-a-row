@@ -30,15 +30,21 @@ def isWin( gameStateBoard, x , y , color):
 
     #检查横着的是否有四个以上连着
     number_continuuum = 1 #已经计入新的棋子
-    for j in range( y + 1, 7, 1) :#j代表行
-        if gameStateBoard[x][j] != color:
-            t = j 
-            break
+    t=y+1
+    while t<7 and gameStateBoard[x][t]==color:
+        t+=1
+    # for j in range( y + 1, 7, 1) :#j代表行
+    #     if gameStateBoard[x][j] != color:
+    #         t = j 
+    #         break
     number_continuuum += ( t - y-1 )
-    for j in range( y - 1, -1, -1) :#j代表行
-        if gameStateBoard[x][j] != color:
-            t = j 
-            break
+    t=y-1
+    while t>-1 and gameStateBoard[x][t]==color:
+        t-=1
+    # for j in range( y - 1, -1, -1) :#j代表行
+    #     if gameStateBoard[x][j] != color:
+    #         t = j 
+    #         break
     number_continuuum += ( y - 1 - t )        
     if number_continuuum >= 4 :
         return True
